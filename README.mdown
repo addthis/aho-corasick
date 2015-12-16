@@ -1,0 +1,102 @@
+# Ahocorasick
+
+## Introduction
+
+This is the source code distribution for an implementation of the Aho-Corasick automaton in Java.
+It has implemented a simplified form of the path compression technique
+described in [http://dx.doi.org/10.1109/INFCOM.2004.1354682](Tuck et al. 2004).
+
+This library is releated under the Apache License Version 2.0.
+For license information please see LICENSE. This is a modified version
+of https://bitbucket.org/jlanchas/aho-corasick/. The jlanchas implemenation was
+released under the BSD 3-clause license and it is a modified version of
+the original code written by Danny Yoo and located at
+[https://hkn.eecs.berkeley.edu/~dyoo/java/index.html](https://hkn.eecs.berkeley.edu/~dyoo/java/index.html).
+
+## Building the jar
+
+To compile the jar, run `mvn package`.
+
+## Use
+
+```xml
+<dependency>
+  <groupId>com.addthis</groupId>
+  <artifactId>ahocorasick</artifactId>
+  <version>latest-and-greatest</version>
+</dependency>
+```
+
+You can either install locally, or releases will eventually make their
+way to maven central.
+
+
+## Helper methods in the AhoCorasick class
+
+To **add** strings to a tree now you can use the method `#add(String)`, instead of
+`#add(byte[] bytes, Object output)`.
+
+To **search** strings now you have two options:
+
+* A progressive search, like in the previous version. The `progressiveSearch` call makes
+the first search and the `next` method advances in the search, providing the successive results.
+See example 1.
+
+* A complete search, in one call. The flags in the `completeSearch` method are used to
+indicate
+** if overlapped results are allowed (true) or not (false). See example 2.
+** if the method should return **only** outputs formed with valid tokens (using the
+`StandardTokenizer` provided by [Lucene](http://lucene.apache.org/core)). See example 3.
+
+## Considering only tokens to create valid outputs
+
+Optionally, you can indicate in the `completeSearch` methods that **only** tokens in the input text
+should be considered to located substrings. In the basic use, if you add to your tree the string
+`al Ma` and you search it in the input text `Real Madrid`, you will get one result. If you force
+the algorithm to consider only tokens (see example 3) you will not get results, because neither
+`al` nor `Ma` are tokens.
+
+The tokenizer used is the `StandardTokenizer` provided by [Lucene](http://lucene.apache.org/core). 
+
+# Examples
+
+## Example 1
+
+A progressive search, like in the previous version.
+
+	:::java
+		AhoCorasick tree = AhoCorasick.builder().build();
+		tree.add("Input");
+		tree.prepare();
+		String inputText = "Input text";
+		for (Iterator<SearchResult> iter = tree.progressiveSearch(inputText); iter.hasNext();) {
+			SearchResult result = (SearchResult) iter.next();
+			termsThatHit.addAll(result.getOutputs());
+		}
+		
+## Example 2
+
+A complete search in one call, removing the overlapped results.
+
+	:::java
+		AhoCorasick tree = AhoCorasick.builder().build();
+		tree.add("Input");
+		tree.add("In");
+		tree.add("put");
+		tree.add("Input text");
+		tree.prepare();
+		String inputText = "Input text";
+		List<OutputResult> results = tree.completeSearch(inputText, false, false); // One result: 'Input text'
+		
+## Example 3
+
+Considering only tokens to create valid outputs.
+
+	:::java
+		AhoCorasick tree = AhoCorasick.builder().build();
+		tree.add("Input");
+		tree.add("ut text");
+		tree.add("text");
+		tree.prepare();
+		String inputText = "Input text";
+		List<OutputResult> results = tree.completeSearch(inputText, true, true); // Two results: 'Input' and 'text'
