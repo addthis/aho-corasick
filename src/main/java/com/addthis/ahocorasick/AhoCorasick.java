@@ -13,15 +13,10 @@
  */
 package com.addthis.ahocorasick;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.UncheckedIOException;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -30,11 +25,6 @@ import com.google.common.base.Preconditions;
 
 import com.gs.collections.api.list.primitive.MutableIntList;
 import com.gs.collections.impl.list.mutable.primitive.IntArrayList;
-
-import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
-import org.apache.lucene.analysis.util.TokenizerFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,14 +58,12 @@ public class AhoCorasick {
 
     private final State root;
     private final OutputSizeCalculator outputSizeCalculator;
-    private final TokenizerFactory tokenizerFactory;
     private boolean prepared;
 
-    private AhoCorasick(OutputSizeCalculator outputSizeCalculator, TokenizerFactory tokenizerFactory) {
+    private AhoCorasick(OutputSizeCalculator outputSizeCalculator) {
         Preconditions.checkNotNull(outputSizeCalculator, "The outputSizeCalculator parameter must be non-null");
         this.root = new State(0);
         this.outputSizeCalculator = outputSizeCalculator;
-        this.tokenizerFactory = tokenizerFactory;
         this.prepared = false;
     }
 
@@ -86,20 +74,14 @@ public class AhoCorasick {
     public static class Builder {
 
         private OutputSizeCalculator outputSizeCalculator = new StringOutputSizeCalculator();
-        private TokenizerFactory tokenizerFactory = new StandardTokenizerFactory(new HashMap<>());
 
         public Builder setOutputSizeCalculator(OutputSizeCalculator calculator) {
             outputSizeCalculator = calculator;
             return this;
         }
 
-        public Builder setTokenizerFactory(TokenizerFactory factory) {
-            tokenizerFactory = factory;
-            return this;
-        }
-
         public AhoCorasick build() {
-            return new AhoCorasick(outputSizeCalculator, tokenizerFactory);
+            return new AhoCorasick(outputSizeCalculator);
         }
     }
 
@@ -164,26 +146,11 @@ public class AhoCorasick {
      */
     public List<OutputResult> completeSearch(String input,
                                              boolean allowOverlapping, boolean onlyTokens) {
-        return completeSearch(input, allowOverlapping, onlyTokens, null);
-    }
-
-    /**
-     * Perform a search over the input text and return all the OutputResult objects,
-     * ordered by position.
-     *
-     * @param input            (non-null) string to perform matches against
-     * @param allowOverlapping if true then return results that overlap
-     * @param onlyTokens       if true then apply tokenizer to returns
-     * @param tokenizer        optionally provide the tokenizer. Useful for recycling tokenizer objects.
-     * @return list of matching results
-     */
-    public List<OutputResult> completeSearch(String input,
-                                             boolean allowOverlapping, boolean onlyTokens, Tokenizer tokenizer) {
         List<OutputResult> result;
         Searcher searcher = new Searcher(this, startSearch(input));
 
         // Recollection the valid outputs
-        result = recollectOutputResults(searcher, input, onlyTokens, tokenizer);
+        result = recollectOutputResults(searcher, input, onlyTokens);
 
         // Sorting the result list according to the startIndex of each output
         sortOutputResults(result);
@@ -315,41 +282,30 @@ public class AhoCorasick {
         return null;
     }
 
-    private TokensInformation extractTokensInformation(String chars, Tokenizer tokenizer) {
+    private TokensInformation extractTokensInformation(String chars) {
         TokensInformation result = new TokensInformation();
         MutableIntList starts = new IntArrayList();
         MutableIntList ends = new IntArrayList();
-        tokenizer = configureTokenizer(chars, tokenizer);
-        OffsetAttribute offsetAttribute = tokenizer.addAttribute(OffsetAttribute.class);
-        try {
-            tokenizer.reset();
-            while (tokenizer.incrementToken()) {
-                starts.add(offsetAttribute.startOffset());
-                ends.add(offsetAttribute.endOffset());
+        int startIndex = -1;
+        for (int index = 0; index < chars.length(); index++) {
+            char current = chars.charAt(index);
+            if (!Character.isWhitespace(current)) {
+                if (startIndex == -1) {
+                    startIndex = index;
+                }
+            } else if (startIndex != -1) {
+                starts.add(startIndex);
+                ends.add(index);
+                startIndex = -1;
             }
-            tokenizer.end();
-            tokenizer.close();
-        } catch (Exception ex) {
-            log.error("Error tokenizing the input text: ", ex);
         }
-
+        if (startIndex != -1) {
+            starts.add(startIndex);
+            ends.add(chars.length());
+        }
         result.setEnds(ends);
         result.setStarts(starts);
-
         return result;
-    }
-
-    private Tokenizer configureTokenizer(String chars, Tokenizer tokenizer) {
-        try {
-            if (tokenizer == null) {
-                tokenizer = tokenizerFactory.create();
-            }
-            tokenizer.reset();
-            tokenizer.setReader(new StringReader(chars));
-            return tokenizer;
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
     }
 
     private static final Comparator<OutputResult> OUTPUT_RESULTS_COMPARATOR = new Comparator<OutputResult>() {
@@ -364,14 +320,14 @@ public class AhoCorasick {
     }
 
     private List<OutputResult> recollectOutputResults(Searcher searcher,
-                                                      String chars, boolean onlyTokens, Tokenizer tokenizer) {
+                                                      String chars, boolean onlyTokens) {
         int startIndex;
         SearchResult searchResult;
         TokensInformation tokensInformation = null;
         List<OutputResult> result = new ArrayList<OutputResult>();
 
         if (searcher.hasNext() && onlyTokens) {
-            tokensInformation = extractTokensInformation(chars, tokenizer);
+            tokensInformation = extractTokensInformation(chars);
         }
 
         // Iteration over the results

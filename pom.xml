@@ -36,7 +36,6 @@
   <properties>
     <project.build.targetJdk>1.8</project.build.targetJdk>
     <dep.goldmansachs.collections.version>6.2.0</dep.goldmansachs.collections.version>
-    <dep.lucene.version>5.3.0</dep.lucene.version>
     <dep.apache.commons.lang3.version>3.4</dep.apache.commons.lang3.version>
   </properties>
 
@@ -66,11 +65,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-analyzers-common</artifactId>
-      <version>${dep.lucene.version}</version>
     </dependency>
     <dependency>
       <groupId>com.goldmansachs</groupId>

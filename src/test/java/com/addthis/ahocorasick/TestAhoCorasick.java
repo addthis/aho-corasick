@@ -15,7 +15,6 @@ package com.addthis.ahocorasick;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -25,8 +24,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 
 import org.junit.Test;
 
@@ -378,32 +375,6 @@ public class TestAhoCorasick {
     }
 
     @Test
-    public void reuseTokenizer() {
-        Tokenizer tokenizer = new StandardTokenizerFactory(new HashMap<>()).create();
-        AhoCorasick tree = AhoCorasick.builder().build();
-        tree.add("Apple");
-        tree.add("e i");
-        tree.add("than Microsoft");
-        tree.add("Microsoft");
-        tree.add("er than");
-        tree.prepare();
-
-        String inputText = "Apple is better than Microsoft";
-        List<OutputResult> results = tree.completeSearch(inputText, false, true, tokenizer);
-
-        assertEquals(2, results.size());
-        assertEquals("Apple", results.get(0).getOutput());
-        assertEquals("than Microsoft", results.get(1).getOutput());
-
-        results = tree.completeSearch(inputText, true, true, tokenizer);
-
-        assertEquals(3, results.size());
-        assertEquals("Apple", results.get(0).getOutput());
-        assertEquals("than Microsoft", results.get(1).getOutput());
-        assertEquals("Microsoft", results.get(2).getOutput());
-    }
-
-    @Test
     public void completeSearchTokenized2() {
         AhoCorasick tree = AhoCorasick.builder().build();
         tree.add("Real Madrid");
@@ -431,7 +402,7 @@ public class TestAhoCorasick {
         tree.add("comp");
         tree.prepare();
 
-        String inputText = "A complete sentence";
+        String inputText = "    A    complete      sentence     ";
         List<OutputResult> results = tree.completeSearch(inputText, false, true); // without overlapping
 
         assertEquals(0, results.size());
