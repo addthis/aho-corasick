@@ -16,7 +16,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.addthis</groupId>
   <artifactId>ahocorasick</artifactId>
-  <version>1.5.4-SNAPSHOT</version>
+  <version>1.5.4</version>
   <description>Java implementation of Aho-Corasick dictionary matching algorithm</description>
   <url>https://github.com/addthis/aho-corasick</url>
   <licenses>
@@ -81,7 +81,7 @@
     <connection>scm:git:git@github.com:addthis/aho-corasick.git</connection>
     <developerConnection>scm:git:git@github.com:addthis/aho-corasick.git</developerConnection>
     <url>https://github.com/addthis/aho-corasick</url>
-    <tag>HEAD</tag>
+    <tag>v1.5.4</tag>
   </scm>
 
 </project>
