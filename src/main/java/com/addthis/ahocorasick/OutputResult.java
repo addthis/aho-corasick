@@ -13,7 +13,7 @@
  */
 package com.addthis.ahocorasick;
 
-class InternalResult {
+public class OutputResult {
     /**
      * The payload associated with the located substring.
      */
@@ -29,29 +29,38 @@ class InternalResult {
      * The index (excluded) in the whole string where the located substring
      * ends.
      */
-    private int lastIndex;
+    private int endIndex;
 
     /**
      * Creates a new OutputResult with the output and the last index passed
      * as parameter. Set the startIndex attribute only if the output object
      * is a String.
      */
-    InternalResult(Object output, int startIndex, int lastIndex) {
+    OutputResult(Object output, int startIndex, int endIndex) {
         this.output = output;
         this.startIndex = startIndex;
-        this.lastIndex = lastIndex;
+        this.endIndex = endIndex;
     }
 
+    /**
+     * @return output associated with the match
+     */
     public Object getOutput() {
         return output;
     }
 
+    /**
+     * @return start position associated with the match
+     */
     public int getStartIndex() {
         return startIndex;
     }
 
-    public int getLastIndex() {
-        return lastIndex;
+    /**
+     * @return end position associated with the match
+     */
+    public int getEndIndex() {
+        return endIndex;
     }
 
     /**
@@ -60,9 +69,9 @@ class InternalResult {
      * second output lie within the first chunk:<code>start1 &lt;= start2 &lt; last1</code>, or
      * <code>start1 &lt; last2 &lt;= last1</code>.
      */
-    boolean isOverlapped(InternalResult other) {
-        return (this.startIndex <= other.startIndex && other.startIndex < this.lastIndex)
-               || (this.startIndex < other.lastIndex && other.lastIndex <= this.lastIndex);
+    boolean isOverlapped(OutputResult other) {
+        return (this.startIndex <= other.startIndex && other.startIndex < this.endIndex)
+               || (this.startIndex < other.endIndex && other.endIndex <= this.endIndex);
     }
 
     /**
@@ -72,13 +81,14 @@ class InternalResult {
      * <code>start1 == start2</code> and <code>last1 &gt; last2</code>
      * (longest).
      */
-    boolean dominate(InternalResult other) {
+    boolean dominate(OutputResult other) {
         return isOverlapped(other)
                && ((this.startIndex < other.startIndex) ||
-                   (this.startIndex == other.startIndex && this.lastIndex > other.lastIndex));
+                   (this.startIndex == other.startIndex && this.endIndex > other.endIndex));
     }
 
+    @Override
     public String toString() {
-        return "[" + getStartIndex() + "," + getLastIndex() + "]: " + getOutput();
+        return "[" + getStartIndex() + "," + getEndIndex() + "]: " + getOutput();
     }
 }
