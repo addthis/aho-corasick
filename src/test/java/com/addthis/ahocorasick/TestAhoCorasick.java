@@ -275,45 +275,45 @@ public class TestAhoCorasick {
     @Test
     public void removeOverlapping1() {
         AhoCorasick tree = AhoCorasick.builder().build();
-        List<OutputResult> outputResults = new ArrayList<OutputResult>();
-        outputResults.add(new OutputResult(0, 0, 2));
-        outputResults.add(new OutputResult(1, 2, 4));
-        outputResults.add(new OutputResult(2, 5, 6));
+        List<InternalResult> internalResults = new ArrayList<InternalResult>();
+        internalResults.add(new InternalResult(0, 0, 2));
+        internalResults.add(new InternalResult(1, 2, 4));
+        internalResults.add(new InternalResult(2, 5, 6));
 
-        assertEquals(3, outputResults.size());
-        tree.removeOverlapping(outputResults); // No effect
-        assertEquals(3, outputResults.size());
+        assertEquals(3, internalResults.size());
+        tree.removeOverlapping(internalResults); // No effect
+        assertEquals(3, internalResults.size());
     }
 
     // With a clear overlapping
     @Test
     public void removeOverlapping2() {
         AhoCorasick tree = AhoCorasick.builder().build();
-        List<OutputResult> outputResults = new ArrayList<OutputResult>();
-        outputResults.add(new OutputResult(0, 0, 2));
-        outputResults.add(new OutputResult(1, 1, 4));
-        outputResults.add(new OutputResult(2, 5, 6));
+        List<InternalResult> internalResults = new ArrayList<InternalResult>();
+        internalResults.add(new InternalResult(0, 0, 2));
+        internalResults.add(new InternalResult(1, 1, 4));
+        internalResults.add(new InternalResult(2, 5, 6));
 
-        assertEquals(3, outputResults.size());
-        tree.removeOverlapping(outputResults);
-        assertEquals(2, outputResults.size());
-        assertEquals(0, outputResults.get(0).getOutput());
-        assertEquals(2, outputResults.get(1).getOutput());
+        assertEquals(3, internalResults.size());
+        tree.removeOverlapping(internalResults);
+        assertEquals(2, internalResults.size());
+        assertEquals(0, internalResults.get(0).getOutput());
+        assertEquals(2, internalResults.get(1).getOutput());
     }
 
     // With two overlapping, one with the same start index
     @Test
     public void removeOverlapping3() {
         AhoCorasick tree = AhoCorasick.builder().build();
-        List<OutputResult> outputResults = new ArrayList<OutputResult>();
-        outputResults.add(new OutputResult(0, 0, 2));
-        outputResults.add(new OutputResult(1, 0, 4));
-        outputResults.add(new OutputResult(2, 3, 6));
+        List<InternalResult> internalResults = new ArrayList<InternalResult>();
+        internalResults.add(new InternalResult(0, 0, 2));
+        internalResults.add(new InternalResult(1, 0, 4));
+        internalResults.add(new InternalResult(2, 3, 6));
 
-        assertEquals(3, outputResults.size());
-        tree.removeOverlapping(outputResults);
-        assertEquals(1, outputResults.size());
-        assertEquals(1, outputResults.get(0).getOutput());
+        assertEquals(3, internalResults.size());
+        tree.removeOverlapping(internalResults);
+        assertEquals(1, internalResults.size());
+        assertEquals(1, internalResults.get(0).getOutput());
     }
 
     @Test
@@ -326,7 +326,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "Apple is better than Microsoft";
-        List<OutputResult> results = tree.completeSearch(inputText, false, false);
+        List<InternalResult> results = tree.completeSearch(inputText, false, false);
 
         assertEquals(2, results.size());
         assertEquals("Apple", results.get(0).getOutput());
@@ -343,7 +343,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "Apple is better than Microsoft";
-        List<OutputResult> results = tree.completeSearch(inputText, true, false);
+        List<InternalResult> results = tree.completeSearch(inputText, true, false);
 
         assertEquals(4, results.size());
         assertEquals("App", results.get(0).getOutput());
@@ -363,7 +363,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "Apple is better than Microsoft";
-        List<OutputResult> results = tree.completeSearch(inputText, false, true); // without overlapping
+        List<InternalResult> results = tree.completeSearch(inputText, false, true); // without overlapping
 
         assertEquals(2, results.size());
         assertEquals("Apple", results.get(0).getOutput());
@@ -389,7 +389,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "Apple is better than Microsoft";
-        List<OutputResult> results = tree.completeSearch(inputText, false, true, tokenizer);
+        List<InternalResult> results = tree.completeSearch(inputText, false, true, tokenizer);
 
         assertEquals(2, results.size());
         assertEquals("Apple", results.get(0).getOutput());
@@ -417,7 +417,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "El Real Madrid no puede fichar a Messi porque es del Barcelona";
-        List<OutputResult> results = tree.completeSearch(inputText, false, true); // without overlapping
+        List<InternalResult> results = tree.completeSearch(inputText, false, true); // without overlapping
 
         assertEquals(3, results.size());
         assertEquals("Real Madrid", results.get(0).getOutput());
@@ -432,7 +432,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "A complete sentence";
-        List<OutputResult> results = tree.completeSearch(inputText, false, true); // without overlapping
+        List<InternalResult> results = tree.completeSearch(inputText, false, true); // without overlapping
 
         assertEquals(0, results.size());
     }
@@ -447,7 +447,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "El Real Madrid no puede fichar a Messi porque es del Barcelona";
-        List<OutputResult> results = tree.completeSearch(inputText, false, true); // without overlapping
+        List<InternalResult> results = tree.completeSearch(inputText, false, true); // without overlapping
 
         assertEquals(1, results.size());
         assertEquals("Real Madrid", results.get(0).getOutput());
@@ -464,7 +464,7 @@ public class TestAhoCorasick {
         tree.prepare();
 
         String inputText = "Apple is better than Microsoft";
-        List<OutputResult> results = tree.completeSearch(inputText, true, true); // with overlapping
+        List<InternalResult> results = tree.completeSearch(inputText, true, true); // with overlapping
 
         assertEquals(2, results.size());
         assertEquals("than Microsoft", results.get(0).getOutput());
@@ -485,7 +485,7 @@ public class TestAhoCorasick {
         assertEquals("orld", wState.getFastPath());
 
         String inputText = "helloworl";
-        List<OutputResult> results = tree.completeSearch(inputText, false, false);
+        List<InternalResult> results = tree.completeSearch(inputText, false, false);
         assertEquals(1, results.size());
         inputText = "helloworld";
         results = tree.completeSearch(inputText, false, false);
@@ -497,7 +497,7 @@ public class TestAhoCorasick {
         AhoCorasick tree = AhoCorasick.builder().build();
         tree.add("abcdefg");
         tree.prepare();
-        List<OutputResult> results = tree.completeSearch("abcde", true, false);
+        List<InternalResult> results = tree.completeSearch("abcde", true, false);
         assertEquals(0, results.size());
     }
 
@@ -521,10 +521,10 @@ public class TestAhoCorasick {
             builder.append(element);
         }
         String input = builder.toString();
-        List<OutputResult> results = tree.completeSearch(input, true, false);
+        List<InternalResult> results = tree.completeSearch(input, true, false);
         Set<String> output = new HashSet<>();
-        for (OutputResult outputResult : results) {
-            output.add(outputResult.getOutput().toString());
+        for (InternalResult internalResult : results) {
+            output.add(internalResult.getOutput().toString());
         }
         if (elements.size() > output.size()) {
             Set<String> extra = new LinkedHashSet<>(elements);

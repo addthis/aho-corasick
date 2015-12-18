@@ -13,7 +13,7 @@
  */
 package com.addthis.ahocorasick;
 
-public class OutputResult {
+class InternalResult {
     /**
      * The payload associated with the located substring.
      */
@@ -36,7 +36,7 @@ public class OutputResult {
      * as parameter. Set the startIndex attribute only if the output object
      * is a String.
      */
-    OutputResult(Object output, int startIndex, int lastIndex) {
+    InternalResult(Object output, int startIndex, int lastIndex) {
         this.output = output;
         this.startIndex = startIndex;
         this.lastIndex = lastIndex;
@@ -60,7 +60,7 @@ public class OutputResult {
      * second output lie within the first chunk:<code>start1 &lt;= start2 &lt; last1</code>, or
      * <code>start1 &lt; last2 &lt;= last1</code>.
      */
-    boolean isOverlapped(OutputResult other) {
+    boolean isOverlapped(InternalResult other) {
         return (this.startIndex <= other.startIndex && other.startIndex < this.lastIndex)
                || (this.startIndex < other.lastIndex && other.lastIndex <= this.lastIndex);
     }
@@ -72,7 +72,7 @@ public class OutputResult {
      * <code>start1 == start2</code> and <code>last1 &gt; last2</code>
      * (longest).
      */
-    boolean dominate(OutputResult other) {
+    boolean dominate(InternalResult other) {
         return isOverlapped(other)
                && ((this.startIndex < other.startIndex) ||
                    (this.startIndex == other.startIndex && this.lastIndex > other.lastIndex));

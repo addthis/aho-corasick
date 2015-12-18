@@ -26,7 +26,7 @@ import java.util.Set;
  * this is not exposed for public use.)
  * </p>
  */
-class SearchResult {
+public class SearchResult {
     final State lastMatchedState;
     final String chars;
 
@@ -42,9 +42,9 @@ class SearchResult {
     }
 
     /**
-     * Returns a list of the outputs of this match.
+     * @return set of outputs associated with this match
      */
-    Set<Object> getOutputs() {
+    public Set<Object> getOutputs() {
         return lastMatchedState.getOutputs();
     }
 }

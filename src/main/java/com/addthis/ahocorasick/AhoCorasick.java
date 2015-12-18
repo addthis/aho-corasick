@@ -162,7 +162,7 @@ public class AhoCorasick {
      * @param onlyTokens       if true then apply tokenizer to returns
      * @return list of matching results
      */
-    public List<OutputResult> completeSearch(String input,
+    public List<InternalResult> completeSearch(String input,
                                              boolean allowOverlapping, boolean onlyTokens) {
         return completeSearch(input, allowOverlapping, onlyTokens, null);
     }
@@ -177,9 +177,9 @@ public class AhoCorasick {
      * @param tokenizer        optionally provide the tokenizer. Useful for recycling tokenizer objects.
      * @return list of matching results
      */
-    public List<OutputResult> completeSearch(String input,
+    public List<InternalResult> completeSearch(String input,
                                              boolean allowOverlapping, boolean onlyTokens, Tokenizer tokenizer) {
-        List<OutputResult> result;
+        List<InternalResult> result;
         Searcher searcher = new Searcher(this, startSearch(input));
 
         // Recollection the valid outputs
@@ -220,14 +220,14 @@ public class AhoCorasick {
      * <code>start1 == start2</code> and <code>last1 &gt; last2</code>
      * (longest).
      */
-    void removeOverlapping(List<OutputResult> outputResults) {
+    void removeOverlapping(List<InternalResult> internalResults) {
         int currentIndex = 0;
-        OutputResult current, next;
+        InternalResult current, next;
 
-        while (currentIndex < (outputResults.size() - 1)) {
-            current = outputResults.get(currentIndex);
+        while (currentIndex < (internalResults.size() - 1)) {
+            current = internalResults.get(currentIndex);
             // We will check the current output with the next one
-            next = outputResults.get(currentIndex + 1);
+            next = internalResults.get(currentIndex + 1);
 
             if (!current.isOverlapped(next)) {
                 // without overlapping we can advance without problems
@@ -235,11 +235,11 @@ public class AhoCorasick {
             } else if (current.dominate(next)) {
                 // the current one dominates the next one -> we remove the next
                 // one
-                outputResults.remove(currentIndex + 1);
+                internalResults.remove(currentIndex + 1);
             } else {
                 // the next one dominates the current one -> we remove the
                 // current one
-                outputResults.remove(currentIndex);
+                internalResults.remove(currentIndex);
             }
         }
     }
@@ -352,23 +352,23 @@ public class AhoCorasick {
         }
     }
 
-    private static final Comparator<OutputResult> OUTPUT_RESULTS_COMPARATOR = new Comparator<OutputResult>() {
+    private static final Comparator<InternalResult> OUTPUT_RESULTS_COMPARATOR = new Comparator<InternalResult>() {
         @Override
-        public int compare(OutputResult o1, OutputResult o2) {
+        public int compare(InternalResult o1, InternalResult o2) {
             return o1.getStartIndex() - o2.getStartIndex();
         }
     };
 
-    private void sortOutputResults(List<OutputResult> outputResults) {
-        Collections.sort(outputResults, OUTPUT_RESULTS_COMPARATOR);
+    private void sortOutputResults(List<InternalResult> internalResults) {
+        Collections.sort(internalResults, OUTPUT_RESULTS_COMPARATOR);
     }
 
-    private List<OutputResult> recollectOutputResults(Searcher searcher,
+    private List<InternalResult> recollectOutputResults(Searcher searcher,
                                                       String chars, boolean onlyTokens, Tokenizer tokenizer) {
         int startIndex;
         SearchResult searchResult;
         TokensInformation tokensInformation = null;
-        List<OutputResult> result = new ArrayList<OutputResult>();
+        List<InternalResult> result = new ArrayList<InternalResult>();
 
         if (searcher.hasNext() && onlyTokens) {
             tokensInformation = extractTokensInformation(chars, tokenizer);
@@ -383,7 +383,7 @@ public class AhoCorasick {
                 startIndex = searchResult.lastIndex
                              - outputSizeCalculator.calculateSize(output);
                 if (!onlyTokens || tokensInformation.areValidOffsets(startIndex, searchResult.lastIndex)) {
-                    result.add(new OutputResult(output, startIndex, searchResult.lastIndex));
+                    result.add(new InternalResult(output, startIndex, searchResult.lastIndex));
                 }
             }
         }
