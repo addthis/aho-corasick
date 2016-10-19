@@ -13,13 +13,15 @@
  */
 package com.addthis.ahocorasick;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
 
 /**
  * A state represents an element in the Aho-Corasick tree.
@@ -64,6 +66,7 @@ class State {
     }
 
     // DFS
+    @VisibleForTesting
     public void traverse( State root ) {
         if(root == null ) return;
         System.out.print(root.c + " ");
