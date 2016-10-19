@@ -30,6 +30,7 @@ class State {
 
     private static final char[] EMPTY_KEYS = new char[0];
 
+    private char c;
     private final int depth;
     private EdgeList edgeList;
     private State fail;
@@ -53,8 +54,25 @@ class State {
         if (nextState == null) {
             nextState = new State(depth + 1);
             edgeList.put(c, nextState);
+            edgeList.addChar(c, nextState);
         }
         return nextState;
+    }
+
+    void addChar(char c) {
+        this.c = c;
+    }
+
+    // DFS
+    public void traverse( State root ) {
+        if(root == null ) return;
+        System.out.print(root.c + " ");
+
+        EdgeList edgeList = root.edgeList;
+        if(edgeList == null ) return;
+        for( State state : edgeList.values()) {
+            traverse(state);
+        }
     }
 
     State extendAll(String chars) {
@@ -63,7 +81,9 @@ class State {
             if (state.edgeList == null) {
                 state.edgeList = new SparseEdgeList();
             }
+
             State nextState = state.edgeList.get(chars.charAt(i));
+
             if (nextState == null) {
                 nextState = state.extend(chars.charAt(i));
             }

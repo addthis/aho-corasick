@@ -29,4 +29,5 @@ interface EdgeList {
 
     Collection<State> values();
 
+    void addChar(char c, State state);
 }

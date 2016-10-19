@@ -13,9 +13,9 @@
  */
 package com.addthis.ahocorasick;
 
-import java.util.Collection;
-
 import com.gs.collections.impl.map.mutable.primitive.CharObjectHashMap;
+
+import java.util.Collection;
 
 class SparseEdgeList implements EdgeList {
 
@@ -45,5 +45,10 @@ class SparseEdgeList implements EdgeList {
 
     @Override
     public Collection<State> values() { return states.values(); }
+
+    @Override
+    public void addChar(char c, State state) {
+        state.addChar(c);
+    }
 
 }
