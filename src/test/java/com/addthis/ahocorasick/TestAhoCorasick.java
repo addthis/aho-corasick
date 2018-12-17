@@ -13,6 +13,9 @@
  */
 package com.addthis.ahocorasick;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,10 +26,6 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.lang3.RandomStringUtils;
-
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -35,6 +34,17 @@ import static org.junit.Assert.fail;
 
 public class TestAhoCorasick {
 
+    @Test
+    public void traverse() {
+        AhoCorasick tree = AhoCorasick.builder().build();
+        tree.add("he", "he");
+        tree.add("she", "she");
+        tree.add("his", "his");
+        tree.add("hers", "hers");
+        tree.add("herhome", "herhome");
+        State root = tree.getRoot();
+        root.traverse(root);
+    }
 
     @Test
     public void construction() {
